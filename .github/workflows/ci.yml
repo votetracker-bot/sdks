@@ -19,7 +19,7 @@ jobs:
         working-directory: typescript
     steps:
       - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
         with:
           package_json_file: typescript/package.json
       - uses: actions/setup-node@v5
@@ -51,7 +51,7 @@ jobs:
         working-directory: typescript
     steps:
       - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
         with:
           package_json_file: typescript/package.json
       - uses: actions/setup-node@v5
