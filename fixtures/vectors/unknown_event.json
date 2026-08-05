@@ -1,0 +1,13 @@
+{
+  "name": "unknown_event",
+  "secret": "vt_test_secret_0123456789abcdef",
+  "timestamp": 1785950000,
+  "raw_body": "{\"event_type\":\"EVENT_SOMETHING_NEW\",\"occurred_at\":\"2026-02-27T12:00:00Z\",\"data\":{\"event_id\":\"evt_pub_1234567890\",\"shiny\":true}}",
+  "signature": "87c3ba17b4c8d5e270f74351f6a568f01e6c9c16e0297888b5a2bb68f8903192",
+  "headers": {
+    "x-vt-signature": "87c3ba17b4c8d5e270f74351f6a568f01e6c9c16e0297888b5a2bb68f8903192",
+    "x-vt-timestamp": "1785950000",
+    "x-vt-delivery-id": "fix-unknown_event",
+    "x-vt-attempt": "1"
+  }
+}

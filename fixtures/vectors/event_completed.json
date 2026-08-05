@@ -1,0 +1,13 @@
+{
+  "name": "event_completed",
+  "secret": "vt_test_secret_0123456789abcdef",
+  "timestamp": 1785950000,
+  "raw_body": "{\"event_type\":\"EVENT_COMPLETED\",\"occurred_at\":\"2026-02-26T19:00:00Z\",\"data\":{\"event_id\":\"evt_pub_1234567890\",\"guild_id\":\"706877503645679676\",\"type\":\"GIVEAWAY\",\"prize_text\":\"Your configured prize\",\"project_platform_id\":\"479688142908162059\",\"project_type\":\"BOT\",\"project_name\":\"Vote Tracker\",\"ended_at\":\"2026-02-26T19:00:00Z\",\"is_test\":false,\"total_entries\":87,\"winners\":[{\"user_platform_id\":\"223456683337318402\",\"rank\":1,\"entries_at_draw\":12,\"discord_id\":\"223456683337318402\",\"user_name\":\"xavin\"}]}}",
+  "signature": "7d092c9360958cf6f6a197e626841ecf23feec89be91d9855eeadc2c1c744507",
+  "headers": {
+    "x-vt-signature": "7d092c9360958cf6f6a197e626841ecf23feec89be91d9855eeadc2c1c744507",
+    "x-vt-timestamp": "1785950000",
+    "x-vt-delivery-id": "fix-event_completed",
+    "x-vt-attempt": "1"
+  }
+}

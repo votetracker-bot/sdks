@@ -1,0 +1,13 @@
+{
+  "name": "vote_created",
+  "secret": "vt_test_secret_0123456789abcdef",
+  "timestamp": 1785950000,
+  "raw_body": "{\"event_type\":\"VOTE_CREATED\",\"occurred_at\":\"2026-02-25T18:30:00Z\",\"data\":{\"id\":\"vt_vote_2k5k5f2nY1Rk08Jxq8Nqf2Q2f6b2iYwzH0n7qkW9c3Q\",\"vote_type\":\"VOTE_CREATE\",\"user_platform_id\":\"223456683337318402\",\"project_platform_id\":\"479688142908162059\",\"project_type\":\"BOT\",\"project_name\":\"Vote Tracker\",\"weight\":1,\"vote_expires_at\":\"2026-02-26T18:30:00Z\",\"streak_current\":4,\"is_test\":false,\"query\":{\"guild_id\":\"811261515891474442\",\"source\":\"vote-command\"}}}",
+  "signature": "44220d01cfb32e61634e3bd13bcd71815ff53aa95653290d93b116a65381e10d",
+  "headers": {
+    "x-vt-signature": "44220d01cfb32e61634e3bd13bcd71815ff53aa95653290d93b116a65381e10d",
+    "x-vt-timestamp": "1785950000",
+    "x-vt-delivery-id": "fix-vote_created",
+    "x-vt-attempt": "1"
+  }
+}

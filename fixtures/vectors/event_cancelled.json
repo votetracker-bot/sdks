@@ -1,0 +1,13 @@
+{
+  "name": "event_cancelled",
+  "secret": "vt_test_secret_0123456789abcdef",
+  "timestamp": 1785950000,
+  "raw_body": "{\"event_type\":\"EVENT_CANCELLED\",\"occurred_at\":\"2026-02-25T20:00:00Z\",\"data\":{\"event_id\":\"evt_pub_1234567890\",\"guild_id\":\"706877503645679676\",\"type\":\"GIVEAWAY\",\"prize_text\":\"Your configured prize\",\"project_platform_id\":\"479688142908162059\",\"project_type\":\"BOT\",\"project_name\":\"Vote Tracker\",\"cancel_reason\":\"MANUAL_CANCEL\",\"cancelled_at\":\"2026-02-25T20:00:00Z\",\"is_test\":false}}",
+  "signature": "65a366c6da623af9b35ec2bf8cd7996f7cf7b910b496bc2afd091442c59ea6f0",
+  "headers": {
+    "x-vt-signature": "65a366c6da623af9b35ec2bf8cd7996f7cf7b910b496bc2afd091442c59ea6f0",
+    "x-vt-timestamp": "1785950000",
+    "x-vt-delivery-id": "fix-event_cancelled",
+    "x-vt-attempt": "1"
+  }
+}

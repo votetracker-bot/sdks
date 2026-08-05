@@ -1,0 +1,13 @@
+{
+  "name": "event_activated",
+  "secret": "vt_test_secret_0123456789abcdef",
+  "timestamp": 1785950000,
+  "raw_body": "{\"event_type\":\"EVENT_ACTIVATED\",\"occurred_at\":\"2026-02-25T19:00:00Z\",\"data\":{\"event_id\":\"evt_pub_1234567890\",\"guild_id\":\"706877503645679676\",\"type\":\"GIVEAWAY\",\"prize_text\":\"Your configured prize\",\"project_platform_id\":\"479688142908162059\",\"project_type\":\"BOT\",\"project_name\":\"Vote Tracker\",\"starts_at\":\"2026-02-25T19:00:00Z\",\"ends_at\":\"2026-02-26T19:00:00Z\",\"winner_count\":1,\"base_entries_per_vote\":1,\"is_test\":false}}",
+  "signature": "ace6e615cb5caf888980786cee6a45ec6383199c93719c2da561d979c7964e89",
+  "headers": {
+    "x-vt-signature": "ace6e615cb5caf888980786cee6a45ec6383199c93719c2da561d979c7964e89",
+    "x-vt-timestamp": "1785950000",
+    "x-vt-delivery-id": "fix-event_activated",
+    "x-vt-attempt": "1"
+  }
+}

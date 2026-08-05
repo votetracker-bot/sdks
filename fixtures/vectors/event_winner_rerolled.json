@@ -1,0 +1,13 @@
+{
+  "name": "event_winner_rerolled",
+  "secret": "vt_test_secret_0123456789abcdef",
+  "timestamp": 1785950000,
+  "raw_body": "{\"event_type\":\"EVENT_WINNER_REROLLED\",\"occurred_at\":\"2026-02-26T20:15:00Z\",\"data\":{\"event_id\":\"evt_pub_1234567890\",\"guild_id\":\"706877503645679676\",\"type\":\"GIVEAWAY\",\"prize_text\":\"Your configured prize\",\"project_platform_id\":\"479688142908162059\",\"project_type\":\"BOT\",\"project_name\":\"Vote Tracker\",\"total_entries\":87,\"rerolls\":[{\"rank\":1,\"previous_winner\":{\"user_platform_id\":\"223456683337318402\",\"rank\":1,\"entries_at_draw\":12,\"discord_id\":\"223456683337318402\",\"user_name\":\"xavin\"},\"new_winner\":{\"user_platform_id\":\"199456683337318401\",\"rank\":1,\"entries_at_draw\":9,\"discord_id\":\"199456683337318401\",\"user_name\":\"newwinner\"}}],\"winners\":[{\"user_platform_id\":\"199456683337318401\",\"rank\":1,\"entries_at_draw\":9,\"discord_id\":\"199456683337318401\",\"user_name\":\"newwinner\"}],\"reason\":\"Previous winner left the server\",\"external_reward\":{\"kind\":\"currency\",\"amount\":500},\"rerolled_at\":\"2026-02-26T20:15:00Z\"}}",
+  "signature": "5a78ab36ca098889737ff78cbba7f86697631063f1540fa75c624ced66ec9eb7",
+  "headers": {
+    "x-vt-signature": "5a78ab36ca098889737ff78cbba7f86697631063f1540fa75c624ced66ec9eb7",
+    "x-vt-timestamp": "1785950000",
+    "x-vt-delivery-id": "fix-event_winner_rerolled",
+    "x-vt-attempt": "1"
+  }
+}

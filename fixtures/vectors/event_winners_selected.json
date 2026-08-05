@@ -1,0 +1,13 @@
+{
+  "name": "event_winners_selected",
+  "secret": "vt_test_secret_0123456789abcdef",
+  "timestamp": 1785950000,
+  "raw_body": "{\"event_type\":\"EVENT_WINNERS_SELECTED\",\"occurred_at\":\"2026-02-26T19:00:10Z\",\"data\":{\"event_id\":\"evt_pub_1234567890\",\"guild_id\":\"706877503645679676\",\"type\":\"GIVEAWAY\",\"prize_text\":\"Your configured prize\",\"project_platform_id\":\"479688142908162059\",\"project_type\":\"BOT\",\"project_name\":\"Vote Tracker\",\"total_entries\":87,\"winners\":[{\"user_platform_id\":\"223456683337318402\",\"rank\":1,\"entries_at_draw\":12,\"discord_id\":\"223456683337318402\",\"user_name\":\"xavin\"}],\"external_reward\":{\"kind\":\"currency\",\"amount\":500},\"selected_at\":\"2026-02-26T19:00:10Z\",\"is_test\":false}}",
+  "signature": "0a5739c6e2c7e6f6c26b3fd6f327e0c6f8389c6f2923a114ecb663a1d473e889",
+  "headers": {
+    "x-vt-signature": "0a5739c6e2c7e6f6c26b3fd6f327e0c6f8389c6f2923a114ecb663a1d473e889",
+    "x-vt-timestamp": "1785950000",
+    "x-vt-delivery-id": "fix-event_winners_selected",
+    "x-vt-attempt": "1"
+  }
+}

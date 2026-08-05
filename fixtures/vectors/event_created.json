@@ -1,0 +1,13 @@
+{
+  "name": "event_created",
+  "secret": "vt_test_secret_0123456789abcdef",
+  "timestamp": 1785950000,
+  "raw_body": "{\"event_type\":\"EVENT_CREATED\",\"occurred_at\":\"2026-02-25T19:00:00Z\",\"data\":{\"event_id\":\"evt_pub_1234567890\",\"guild_id\":\"706877503645679676\",\"type\":\"GIVEAWAY\",\"prize_text\":\"Your configured prize\",\"project_platform_id\":\"479688142908162059\",\"project_type\":\"BOT\",\"project_name\":\"Vote Tracker\",\"starts_at\":\"2026-02-25T19:00:00Z\",\"ends_at\":\"2026-02-26T19:00:00Z\",\"winner_count\":1,\"base_entries_per_vote\":1,\"external_reward\":{\"kind\":\"currency\",\"amount\":500},\"prize_image_url\":\"https://cdn.example.com/prizes/holo-pikachu.png\",\"is_test\":false}}",
+  "signature": "800bc2d831fa89597146993366059cdfe7ed520d65f023dfd68f5f2c53a96953",
+  "headers": {
+    "x-vt-signature": "800bc2d831fa89597146993366059cdfe7ed520d65f023dfd68f5f2c53a96953",
+    "x-vt-timestamp": "1785950000",
+    "x-vt-delivery-id": "fix-event_created",
+    "x-vt-attempt": "1"
+  }
+}
