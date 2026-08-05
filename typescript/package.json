@@ -83,6 +83,7 @@
   },
   "scripts": {
     "build": "tsup",
+    "prepublishOnly": "pnpm lint && pnpm test && pnpm build",
     "typecheck": "tsc --noEmit",
     "lint": "biome check src test",
     "format": "biome format --write src test",
@@ -114,7 +115,7 @@
     "@biomejs/biome": "^2.4.4",
     "@size-limit/preset-small-lib": "^11.1.6",
     "@types/express": "^5.0.0",
-    "@types/node": "^24.0.0",
+    "@types/node": "^20.19.43",
     "express": "^5.1.0",
     "fastify": "^5.3.0",
     "hono": "^4.7.0",
