@@ -18,11 +18,11 @@ jobs:
       run:
         working-directory: typescript
     steps:
-      - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v5
         with:
           package_json_file: typescript/package.json
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -44,21 +44,27 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     strategy:
+      fail-fast: false
       matrix:
         node: [20, 24]
     defaults:
       run:
         working-directory: typescript
     steps:
-      - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v5
         with:
           package_json_file: typescript/package.json
-      - uses: actions/setup-node@v5
+      # pnpm 11 needs Node >=22.13, so install under 22 and switch to the matrix
+      # Node for the tests; npm run resolves the same local binaries pnpm would.
+      - uses: actions/setup-node@v7
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 22
           cache: pnpm
           cache-dependency-path: typescript/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - run: pnpm test
-      - run: pnpm build
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm run test
+      - run: npm run build
