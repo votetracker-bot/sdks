@@ -124,7 +124,7 @@
     "size-limit": "^11.1.6",
     "tsup": "^8.4.0",
     "typescript": "^5.9.0",
-    "vitest": "^3.2.0"
+    "vitest": "^4.1.10"
   },
   "size-limit": [
     {
