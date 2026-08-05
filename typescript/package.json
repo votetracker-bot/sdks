@@ -92,7 +92,7 @@
     "knip": "knip"
   },
   "dependencies": {
-    "openapi-fetch": "^0.15.0"
+    "openapi-fetch": "^0.17.0"
   },
   "peerDependencies": {
     "express": ">=4.16",
