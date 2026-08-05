@@ -83,6 +83,7 @@
   },
   "scripts": {
     "build": "tsup",
+    "prepublishOnly": "pnpm lint && pnpm test && pnpm build",
     "typecheck": "tsc --noEmit",
     "lint": "biome check src test",
     "format": "biome format --write src test",
