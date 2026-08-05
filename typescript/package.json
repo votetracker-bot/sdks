@@ -1,0 +1,153 @@
+{
+  "name": "@votetracker/sdk",
+  "version": "0.1.0",
+  "description": "Official TypeScript/JavaScript SDK for the VoteTracker API and webhook forwarding",
+  "license": "MIT",
+  "packageManager": "pnpm@11.17.0",
+  "homepage": "https://developer.votetracker.bot",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/votetracker-bot/sdks.git",
+    "directory": "typescript"
+  },
+  "keywords": [
+    "votetracker",
+    "top.gg",
+    "discord",
+    "bot",
+    "votes",
+    "giveaways",
+    "webhooks"
+  ],
+  "type": "module",
+  "engines": {
+    "node": ">=18.17"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./webhooks": {
+      "import": {
+        "types": "./dist/webhooks/index.d.ts",
+        "default": "./dist/webhooks/index.js"
+      },
+      "require": {
+        "types": "./dist/webhooks/index.d.cts",
+        "default": "./dist/webhooks/index.cjs"
+      }
+    },
+    "./webhooks/express": {
+      "import": {
+        "types": "./dist/webhooks/adapters/express.d.ts",
+        "default": "./dist/webhooks/adapters/express.js"
+      },
+      "require": {
+        "types": "./dist/webhooks/adapters/express.d.cts",
+        "default": "./dist/webhooks/adapters/express.cjs"
+      }
+    },
+    "./webhooks/fastify": {
+      "import": {
+        "types": "./dist/webhooks/adapters/fastify.d.ts",
+        "default": "./dist/webhooks/adapters/fastify.js"
+      },
+      "require": {
+        "types": "./dist/webhooks/adapters/fastify.d.cts",
+        "default": "./dist/webhooks/adapters/fastify.cjs"
+      }
+    },
+    "./webhooks/hono": {
+      "import": {
+        "types": "./dist/webhooks/adapters/hono.d.ts",
+        "default": "./dist/webhooks/adapters/hono.js"
+      },
+      "require": {
+        "types": "./dist/webhooks/adapters/hono.d.cts",
+        "default": "./dist/webhooks/adapters/hono.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check src test",
+    "format": "biome format --write src test",
+    "test": "vitest run",
+    "generate": "openapi-typescript ../spec/openapi.json -o src/generated/schema.d.ts",
+    "size": "size-limit",
+    "knip": "knip"
+  },
+  "dependencies": {
+    "openapi-fetch": "^0.15.0"
+  },
+  "peerDependencies": {
+    "express": ">=4.16",
+    "fastify": ">=4",
+    "hono": ">=4"
+  },
+  "peerDependenciesMeta": {
+    "express": {
+      "optional": true
+    },
+    "fastify": {
+      "optional": true
+    },
+    "hono": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.4",
+    "@size-limit/preset-small-lib": "^11.1.6",
+    "@types/express": "^5.0.0",
+    "@types/node": "^24.0.0",
+    "express": "^5.1.0",
+    "fastify": "^5.3.0",
+    "hono": "^4.7.0",
+    "knip": "^6.31.0",
+    "openapi-typescript": "^7.13.0",
+    "size-limit": "^11.1.6",
+    "tsup": "^8.4.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  },
+  "size-limit": [
+    {
+      "path": "dist/index.js",
+      "limit": "5 kB",
+      "ignore": [
+        "crypto",
+        "node:crypto"
+      ]
+    },
+    {
+      "path": "dist/webhooks/index.js",
+      "limit": "3 kB",
+      "ignore": [
+        "crypto",
+        "node:crypto"
+      ]
+    }
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "author": "Hydra Bot (https://votetracker.bot)"
+}
