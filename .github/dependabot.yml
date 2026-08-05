@@ -8,3 +8,7 @@ updates:
     directory: /typescript
     schedule:
       interval: weekly
+    ignore:
+      # @types/node stays on the lowest Node major the SDK supports
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
