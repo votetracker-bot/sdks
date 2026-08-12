@@ -19,7 +19,7 @@ jobs:
         working-directory: typescript
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v5
+      - uses: pnpm/action-setup@v6
         with:
           package_json_file: typescript/package.json
       - uses: actions/setup-node@v7
@@ -52,7 +52,7 @@ jobs:
         working-directory: typescript
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v5
+      - uses: pnpm/action-setup@v6
         with:
           package_json_file: typescript/package.json
       # pnpm 11 needs Node >=22.13, so install under 22 and switch to the matrix
