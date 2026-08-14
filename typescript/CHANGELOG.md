@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/votetracker-bot/sdks/compare/ts-v0.1.0...ts-v0.2.0) (2026-08-14)
+
+
+### Features
+
+* **ts:** purchases resource and purchase webhook events ([2726cbb](https://github.com/votetracker-bot/sdks/commit/2726cbb508d536bd7156177cea6b00d45f1acf2a))
+
 ## 0.1.0 (2026-08-06)
 
 Initial release.

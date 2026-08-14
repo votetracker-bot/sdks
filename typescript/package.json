@@ -1,6 +1,6 @@
 {
   "name": "@votetracker/sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Official TypeScript/JavaScript SDK for the VoteTracker API and webhook forwarding",
   "license": "MIT",
   "packageManager": "pnpm@11.17.0",
