@@ -171,3 +171,143 @@ describe('pagination', () => {
     expect(requests[1]?.url).toContain('cursor=c1')
   })
 })
+
+describe('purchases', () => {
+  it('lists purchases with query params and converts casing', async () => {
+    const { fetch, requests } = fetchStub([
+      json(200, {
+        items: [
+          {
+            purchase_id: 'pch_1',
+            item: { public_id: 'itm_1', name: 'Holo Role', kind: 'DEVELOPER' },
+            buyer: { user_platform_id: '223456683337318402' },
+            price_paid: 500,
+            status: 'PENDING_CLAIM',
+            failure_reason: null,
+            fulfill_deadline_at: '2026-08-11T14:20:00Z',
+            guild_id: '706877503645679676',
+            created_at: '2026-08-10T14:20:00Z',
+            updated_at: '2026-08-10T14:20:00Z',
+          },
+        ],
+        next_cursor: null,
+        has_next: false,
+      }),
+    ])
+    const vt = createVoteTracker(options(fetch))
+
+    const page = await vt.purchases.list({ status: 'PENDING_CLAIM', kind: 'DEVELOPER' })
+
+    const request = requests[0]
+    if (request === undefined) throw new Error('no request recorded')
+    expect(request.url).toContain('/api/v1/integrations/int_1/purchases?')
+    expect(request.url).toContain('status=PENDING_CLAIM')
+    expect(request.url).toContain('kind=DEVELOPER')
+
+    expect(page.items[0]?.purchaseId).toBe('pch_1')
+    expect(page.items[0]?.item.publicId).toBe('itm_1')
+    expect(page.items[0]?.buyer.userPlatformId).toBe('223456683337318402')
+    expect(page.items[0]?.fulfillDeadlineAt).toBe('2026-08-11T14:20:00Z')
+  })
+
+  it('gets a purchase by id', async () => {
+    const { fetch, requests } = fetchStub([
+      json(200, {
+        purchase_id: 'pch_1',
+        item: { public_id: 'itm_1', name: 'Holo Role', kind: 'DEVELOPER' },
+        buyer: { user_platform_id: '223456683337318402' },
+        price_paid: 500,
+        status: 'COMPLETED',
+        failure_reason: null,
+        fulfill_deadline_at: null,
+        guild_id: '706877503645679676',
+        created_at: '2026-08-10T14:20:00Z',
+        updated_at: '2026-08-10T14:21:00Z',
+      }),
+    ])
+    const vt = createVoteTracker(options(fetch))
+
+    const purchase = await vt.purchases.get('pch_1')
+
+    expect(requests[0]?.url).toContain('/api/v1/integrations/int_1/purchases/pch_1')
+    expect(purchase.status).toBe('COMPLETED')
+    expect(purchase.failureReason).toBeNull()
+  })
+
+  it('delivers a purchase without a body', async () => {
+    const { fetch, requests } = fetchStub([
+      json(200, {
+        purchase_id: 'pch_1',
+        item: { public_id: 'itm_1', name: 'Holo Role', kind: 'DEVELOPER' },
+        buyer: { user_platform_id: '223456683337318402' },
+        price_paid: 500,
+        status: 'COMPLETED',
+        failure_reason: null,
+        fulfill_deadline_at: null,
+        guild_id: '706877503645679676',
+        created_at: '2026-08-10T14:20:00Z',
+        updated_at: '2026-08-10T14:21:00Z',
+      }),
+    ])
+    const vt = createVoteTracker(options(fetch))
+
+    const purchase = await vt.purchases.deliver('pch_1')
+
+    const request = requests[0]
+    if (request === undefined) throw new Error('no request recorded')
+    expect(request.method).toBe('POST')
+    expect(request.url).toContain('/api/v1/integrations/int_1/purchases/pch_1/deliver')
+    expect(request.body).toBe('')
+    expect(purchase.purchaseId).toBe('pch_1')
+  })
+
+  it('sends the refund reason only when given', async () => {
+    const { fetch, requests } = fetchStub([
+      json(200, {
+        purchase_id: 'pch_1',
+        item: { public_id: 'itm_1', name: 'Holo Role', kind: 'DEVELOPER' },
+        buyer: { user_platform_id: '223456683337318402' },
+        price_paid: 500,
+        status: 'FAILED',
+        failure_reason: 'FULFILLMENT_TIMEOUT',
+        fulfill_deadline_at: null,
+        guild_id: '706877503645679676',
+        created_at: '2026-08-10T14:20:00Z',
+        updated_at: '2026-08-10T15:00:00Z',
+      }),
+      json(200, {
+        purchase_id: 'pch_1',
+        item: { public_id: 'itm_1', name: 'Holo Role', kind: 'DEVELOPER' },
+        buyer: { user_platform_id: '223456683337318402' },
+        price_paid: 500,
+        status: 'FAILED',
+        failure_reason: null,
+        fulfill_deadline_at: null,
+        guild_id: '706877503645679676',
+        created_at: '2026-08-10T14:20:00Z',
+        updated_at: '2026-08-10T15:00:00Z',
+      }),
+    ])
+    const vt = createVoteTracker(options(fetch))
+
+    await vt.purchases.refund('pch_1', { reason: 'refunding manually' })
+    await vt.purchases.refund('pch_1')
+
+    expect(JSON.parse(requests[0]?.body ?? '{}')).toEqual({ reason: 'refunding manually' })
+    expect(requests[1]?.body).toBe('')
+  })
+
+  it('iterates purchases forward, threading the cursor', async () => {
+    const { fetch, requests } = fetchStub([
+      json(200, { items: [{ purchase_id: 'pch_1' }], next_cursor: 'c1', has_next: true }),
+      json(200, { items: [{ purchase_id: 'pch_2' }], next_cursor: null, has_next: false }),
+    ])
+    const vt = createVoteTracker(options(fetch))
+
+    const ids: string[] = []
+    for await (const purchase of vt.purchases.iterate()) ids.push(purchase.purchaseId)
+
+    expect(ids).toEqual(['pch_1', 'pch_2'])
+    expect(requests[1]?.url).toContain('cursor=c1')
+  })
+})

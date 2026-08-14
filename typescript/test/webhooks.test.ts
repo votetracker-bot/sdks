@@ -1,7 +1,12 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import type { EventWinnersSelectedEvent, VoteCreatedEvent } from '../src/webhooks/index.js'
+import type {
+  EventWinnersSelectedEvent,
+  PurchaseCreatedEvent,
+  PurchaseRefundedEvent,
+  VoteCreatedEvent,
+} from '../src/webhooks/index.js'
 import { KNOWN_EVENT_TYPES, verifyDelivery, WebhookVerificationError } from '../src/webhooks/index.js'
 
 interface Vector {
@@ -51,6 +56,28 @@ describe('verifyDelivery against shared fixtures', () => {
     const { event } = verify(vector)
     const data = (event as VoteCreatedEvent).data
     expect(data.query).toEqual({ guild_id: '811261515891474442', source: 'vote-command' })
+  })
+
+  it('parses a purchase creation with the external config kept opaque', () => {
+    const vector = vectors.find((v) => v.name === 'purchase_created')
+    if (vector === undefined) throw new Error('missing vector')
+    const { event } = verify(vector)
+    expect(event.eventType).toBe('PURCHASE_CREATED')
+    const data = (event as PurchaseCreatedEvent).data
+    expect(data.purchaseId).toBe('pch_pub_9876543210')
+    expect(data.item.externalConfig).toEqual({ role_id: '1470745867945513004' })
+    expect(data.buyer.userPlatformId).toBe('223456683337318402')
+    expect(data.requiresFulfillment).toBe(true)
+  })
+
+  it('parses a purchase refund', () => {
+    const vector = vectors.find((v) => v.name === 'purchase_refunded')
+    if (vector === undefined) throw new Error('missing vector')
+    const { event } = verify(vector)
+    expect(event.eventType).toBe('PURCHASE_REFUNDED')
+    const data = (event as PurchaseRefundedEvent).data
+    expect(data.reason).toBe('FULFILLMENT_TIMEOUT')
+    expect(data.priceRefunded).toBe(500)
   })
 
   it('parses unknown event types into the catch-all instead of throwing', () => {

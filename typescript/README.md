@@ -20,7 +20,7 @@ Node 18.17 or newer.
 
 Everything is configured in the [dashboard](https://votetracker.bot/dashboard/api):
 
-1. Create an API key with the scopes you need (`votes:read`, `events:read`, and `events:write` for giveaway writes).
+1. Create an API key with the scopes you need (`votes:read`, `events:read`, and `events:write` for giveaway writes; `purchases:read` and `purchases:write` for developer shop item fulfillment).
 2. To receive webhooks, add a forwarding target: your publicly reachable endpoint URL, the auth mode (SIGNATURE recommended), and the event types you want. Copy the signing secret or token when it is shown; it appears once.
 
 ## Quick start: reward voters as they vote
@@ -110,6 +110,30 @@ handleEvent({
 
 For `GAME` projects `userPlatformId` is the Roblox id and `discordId` is the linked Discord account (null when the voter never linked one). Act on Discord through `discordId`.
 
+## Fulfill developer shop items
+
+Every shop purchase arrives as `PURCHASE_CREATED`; the ones with `requiresFulfillment` are yours to resolve. Fulfill the item yourself, then call `deliver`; if fulfillment cannot happen before `fulfillDeadlineAt`, VoteTracker refunds the purchase automatically and sends `PURCHASE_REFUNDED`.
+
+```ts
+handleEvent({
+  PURCHASE_CREATED: async (purchase) => {
+    if (!purchase.requiresFulfillment) return
+    try {
+      await grantExternalItem(purchase.buyer.userPlatformId, purchase.item.externalConfig)
+      await vt.purchases.deliver(purchase.purchaseId)
+    } catch {
+      await vt.purchases.refund(purchase.purchaseId, { reason: 'fulfillment failed' })
+    }
+  },
+
+  PURCHASE_REFUNDED: async (purchase) => {
+    await revokeExternalItem(purchase.buyer.userPlatformId, purchase.item.publicId)
+  },
+})
+```
+
+`deliver` is idempotent, call it again freely once fulfillment succeeded. Both `deliver` and `refund` reject with a 409 `VoteTrackerApiError` when the purchase was already resolved the other way (`purchase_already_refunded`, `purchase_already_delivered`) or when the item does not require external fulfillment (`purchase_not_developer_item`).
+
 ## Webhook events
 
 | Event | Fires when | Key fields |
@@ -121,6 +145,8 @@ For `GAME` projects `userPlatformId` is the Roblox id and `discordId` is the lin
 | `EVENT_WINNERS_SELECTED` | winners are drawn | `winners`, `externalReward`, `selectedAt` |
 | `EVENT_WINNER_REROLLED` | a winner is replaced | `rerolls`, `winners`, `reason` |
 | `EVENT_CANCELLED` | a giveaway is cancelled | `eventId`, `cancelReason`, `cancelledAt` |
+| `PURCHASE_CREATED` | someone buys a developer-fulfilled shop item | `purchaseId`, `item`, `buyer`, `requiresFulfillment`, `fulfillDeadlineAt` |
+| `PURCHASE_REFUNDED` | a purchase is refunded | `purchaseId`, `priceRefunded`, `reason` |
 | `WEBHOOK_TEST` | you send a test from the dashboard | `deliveryId` |
 
 Handlers respond automatically: `204` on success, `401` when verification fails (VoteTracker does not retry forged requests), `500` when your handler throws so the delivery is retried with backoff. Only mark work done after it succeeded.
@@ -195,13 +221,19 @@ await vt.giveaways.rerollAllWinners(eventId, { reason: '...' })
 await vt.votes.list({ startDate: '2026-08-01T00:00:00Z' })   // last 7 days
 await vt.votes.userStatus(userPlatformId)
 await vt.votes.userLatest(userPlatformId)
+
+await vt.purchases.list({ status: 'PENDING_CLAIM' })
+await vt.purchases.get(purchaseId)
+await vt.purchases.deliver(purchaseId)             // idempotent
+await vt.purchases.refund(purchaseId, { reason: '...' })
 ```
 
-Cursor pagination is handled by the iterators (giveaways newest first, votes oldest first, matching how the API pages):
+Cursor pagination is handled by the iterators (giveaways and purchases newest first, votes oldest first, matching how the API pages):
 
 ```ts
 for await (const giveaway of vt.giveaways.iterate({ status: 'COMPLETED' })) { /* ... */ }
 for await (const vote of vt.votes.iterate({ startDate })) { /* ... */ }
+for await (const purchase of vt.purchases.iterate({ status: 'COMPLETED' })) { /* ... */ }
 ```
 
 `update` replaces the whole configuration: omitted fields are cleared, including `externalReward`. Send the complete desired state, not a patch.
@@ -238,6 +270,7 @@ Retries are on by default and correctness-first: `429` is always retried honorin
 
 - [API reference](https://developer.votetracker.bot/docs)
 - [Giveaways guide](https://developer.votetracker.bot/docs/giveaways)
+- [Shop economy guide](https://developer.votetracker.bot/docs/economy)
 - [Webhook forwarding guide](https://developer.votetracker.bot/docs/forwarding)
 - [Support server](https://votetracker.bot/support)
 

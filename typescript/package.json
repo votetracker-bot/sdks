@@ -17,6 +17,7 @@
     "bot",
     "votes",
     "giveaways",
+    "purchases",
     "webhooks"
   ],
   "type": "module",

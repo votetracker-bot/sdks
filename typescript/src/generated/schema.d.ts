@@ -48,6 +48,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/integrations/{integration_id}/purchases/{purchase_id}/refund": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Decline fulfillment
+         * @description Refunds a pending developer purchase, returning the coins and restocking the item. Repeating it on an already refunded purchase returns 200 with the same representation.
+         */
+        post: operations["refundIntegrationPurchase"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/integrations/{integration_id}/purchases/{purchase_id}/deliver": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm fulfillment
+         * @description Marks a pending developer purchase as delivered once your system granted the goods. Repeating it on an already delivered purchase returns 200 with the same representation.
+         */
+        post: operations["deliverIntegrationPurchase"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/integrations/{integration_id}/events/{event_id}/winners/{user_platform_id}/reroll": {
         parameters: {
             query?: never;
@@ -220,6 +260,46 @@ export interface paths {
          * @description Returns the latest vote for a user in the integration
          */
         get: operations["getIntegrationUserLatestVote"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/integrations/{integration_id}/purchases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List purchases
+         * @description Returns paginated purchases for the integration, newest first. This is the reconciliation path after missed PURCHASE_CREATED webhooks.
+         */
+        get: operations["listIntegrationPurchases"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/integrations/{integration_id}/purchases/{purchase_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a purchase
+         * @description Returns a single purchase with its current fulfillment state.
+         */
+        get: operations["getIntegrationPurchase"];
         put?: never;
         post?: never;
         delete?: never;
@@ -481,6 +561,58 @@ export interface components {
             /** @description Enable or disable the repeating schedule. */
             repeating: boolean;
         };
+        IntegrationPurchaseRefundRequest: {
+            /** @description Free-text note for your own support trail. Logged, never stored on the purchase. */
+            reason?: string | null;
+        };
+        IntegrationPurchaseBuyerView: {
+            user_platform_id: string;
+        };
+        IntegrationPurchaseItemView: {
+            public_id: string;
+            name: string;
+            /**
+             * @example DEVELOPER
+             * @enum {string}
+             */
+            kind: "ROLE_PERMANENT" | "ROLE_TEMP" | "STREAK_FREEZE" | "GIVEAWAY_ENTRIES" | "CUSTOM" | "DEVELOPER";
+            external_config?: components["schemas"]["JsonElement"];
+        };
+        IntegrationPurchaseView: {
+            /** @example pur_2k5k5f2nY1Rk08Jxq8Nqf2Q */
+            purchase_id: string;
+            item: components["schemas"]["IntegrationPurchaseItemView"];
+            buyer: components["schemas"]["IntegrationPurchaseBuyerView"];
+            /** Format: int64 */
+            price_paid: number;
+            /**
+             * @example PENDING_CLAIM
+             * @enum {string}
+             */
+            status: "PROCESSING" | "PENDING_CLAIM" | "COMPLETED" | "FAILED";
+            /**
+             * @description Why the purchase failed or was refunded. Null while the purchase is still good.
+             * @example FULFILLMENT_TIMEOUT
+             */
+            failure_reason: string | null;
+            /**
+             * Format: date-time
+             * @description When an unacked developer claim refunds itself. Null for every other kind. ISO-8601 UTC timestamp (e.g. 2026-02-25T22:10:00Z).
+             */
+            fulfill_deadline_at: string | null;
+            /** @example 706877503645679676 */
+            guild_id: string;
+            /**
+             * Format: date-time
+             * @description ISO-8601 UTC timestamp (e.g. 2026-02-25T22:10:00Z).
+             */
+            created_at: string;
+            /**
+             * Format: date-time
+             * @description ISO-8601 UTC timestamp (e.g. 2026-02-25T22:10:00Z).
+             */
+            updated_at: string;
+        };
         IntegrationEventRerollRequest: {
             /** @description Why the reroll happened. Kept in the audit trail, never shown in the Discord channel. */
             reason: string;
@@ -641,6 +773,12 @@ export interface components {
              */
             expires_at: string | null;
             vote_active: boolean;
+        };
+        IntegrationPurchasePageView: {
+            items: components["schemas"]["IntegrationPurchaseView"][];
+            /** @description Cursor for the next page, null when has_next is false. */
+            next_cursor: string | null;
+            has_next: boolean;
         };
         IntegrationEventPageView: {
             items: components["schemas"]["IntegrationEventView"][];
@@ -1073,6 +1211,252 @@ export interface operations {
             };
             /** @description Guild access check unavailable, retry later */
             503: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+        };
+    };
+    refundIntegrationPurchase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                integration_id: string;
+                purchase_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["IntegrationPurchaseRefundRequest"];
+            };
+        };
+        responses: {
+            /** @description Purchase after the refund */
+            200: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IntegrationPurchaseView"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+            /** @description Missing purchases:write scope */
+            403: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+            /** @description Purchase not found */
+            404: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+            /** @description Not a developer item, already delivered, or still processing */
+            409: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+            /** @description Rate limit exceeded */
+            429: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    /** @description Seconds until request can be retried */
+                    "Retry-After"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+        };
+    };
+    deliverIntegrationPurchase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                integration_id: string;
+                purchase_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Purchase after the acknowledgement */
+            200: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IntegrationPurchaseView"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+            /** @description Missing purchases:write scope */
+            403: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+            /** @description Purchase not found */
+            404: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+            /** @description Not a developer item, already refunded, or still processing */
+            409: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+            /** @description Rate limit exceeded */
+            429: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    /** @description Seconds until request can be retried */
+                    "Retry-After"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
                 headers: {
                     /** @description Max requests in current rate-limit window */
                     "RateLimit-Limit"?: string;
@@ -2123,6 +2507,226 @@ export interface operations {
                 };
             };
             /** @description No vote found */
+            404: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+            /** @description Rate limit exceeded */
+            429: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    /** @description Seconds until request can be retried */
+                    "Retry-After"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+        };
+    };
+    listIntegrationPurchases: {
+        parameters: {
+            query?: {
+                /** @description Optional status filter */
+                status?: "PROCESSING" | "PENDING_CLAIM" | "COMPLETED" | "FAILED";
+                /** @description Optional item kind filter */
+                kind?: "ROLE_PERMANENT" | "ROLE_TEMP" | "STREAK_FREEZE" | "GIVEAWAY_ENTRIES" | "CUSTOM" | "DEVELOPER";
+                /** @description Opaque pagination cursor from previous response. Continues to older purchases; pass the same filters with every page. */
+                cursor?: string;
+                /** @description Page size */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                integration_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Purchase page */
+            200: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IntegrationPurchasePageView"];
+                };
+            };
+            /** @description Unknown status or kind filter, or a malformed cursor */
+            400: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+            /** @description Rate limit exceeded */
+            429: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    /** @description Seconds until request can be retried */
+                    "Retry-After"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+            /** @description Unexpected server error */
+            500: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+        };
+    };
+    getIntegrationPurchase: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                integration_id: string;
+                purchase_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Purchase detail */
+            200: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IntegrationPurchaseView"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    /** @description Max requests in current rate-limit window */
+                    "RateLimit-Limit"?: string;
+                    /** @description Remaining requests in current window */
+                    "RateLimit-Remaining"?: string;
+                    /** @description Time until reset (seconds with suffix) */
+                    "RateLimit-Reset"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemResponse"];
+                };
+            };
+            /** @description Purchase not found */
             404: {
                 headers: {
                     /** @description Max requests in current rate-limit window */

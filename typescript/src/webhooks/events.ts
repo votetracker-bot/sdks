@@ -137,6 +137,43 @@ export interface EventWinnerRerolledEvent {
   }
 }
 
+export interface PurchaseCreatedEvent {
+  eventType: 'PURCHASE_CREATED'
+  occurredAt: string
+  data: {
+    purchaseId: string
+    item: {
+      publicId: string
+      name: string
+      kind: string
+      /** Developer-defined fulfillment config, echoed verbatim. Null when none was set. */
+      externalConfig: Record<string, unknown> | null
+    }
+    buyer: { userPlatformId: string }
+    pricePaid: number
+    currency: { name: string; emoji: string | null }
+    guildId: string
+    requiresFulfillment: boolean
+    fulfillDeadlineAt: string | null
+    purchasedAt: string
+  }
+}
+
+export interface PurchaseRefundedEvent {
+  eventType: 'PURCHASE_REFUNDED'
+  occurredAt: string
+  data: {
+    purchaseId: string
+    item: { publicId: string; name: string }
+    buyer: { userPlatformId: string }
+    priceRefunded: number
+    /** Why the refund happened. Values today: FULFILLMENT_TIMEOUT, DEVELOPER_REFUND, ROLE_GRANT_BLOCKED. */
+    reason: string
+    guildId: string
+    refundedAt: string
+  }
+}
+
 export interface WebhookTestEvent {
   eventType: 'WEBHOOK_TEST'
   occurredAt: string
@@ -158,6 +195,8 @@ export type KnownWebhookEvent =
   | EventCompletedEvent
   | EventWinnersSelectedEvent
   | EventWinnerRerolledEvent
+  | PurchaseCreatedEvent
+  | PurchaseRefundedEvent
   | WebhookTestEvent
 
 export type WebhookEvent = KnownWebhookEvent | UnknownEvent
@@ -170,6 +209,8 @@ export const KNOWN_EVENT_TYPES: ReadonlySet<string> = new Set([
   'EVENT_COMPLETED',
   'EVENT_WINNERS_SELECTED',
   'EVENT_WINNER_REROLLED',
+  'PURCHASE_CREATED',
+  'PURCHASE_REFUNDED',
   'WEBHOOK_TEST',
 ])
 

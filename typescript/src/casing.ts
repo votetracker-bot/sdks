@@ -2,12 +2,20 @@
  * Boundary between idiomatic camelCase (what SDK users write) and the API's snake_case wire
  * format. One mechanical transform, no per-field code.
  *
- * Two subtrees are user data and pass through with their keys untouched:
+ * Three subtrees are user data and pass through with their keys untouched:
  * - `external_reward` / `externalReward`: opaque owner-defined payload, echoed byte-for-byte
+ * - `external_config` / `externalConfig`: opaque developer fulfillment config for a shop item,
+ *   echoed byte-for-byte
  * - `query`: vote link query parameters, a data map whose keys mean what the voter sent
  */
 
-const OPAQUE_KEYS = new Set(['external_reward', 'externalReward', 'query'])
+const OPAQUE_KEYS = new Set([
+  'external_reward',
+  'externalReward',
+  'external_config',
+  'externalConfig',
+  'query',
+])
 
 /**
  * Keys that would reach `Object.prototype` through assignment, or shadow it. Defense in depth:
@@ -75,7 +83,7 @@ type CamelCase<S extends string> = S extends `${infer Head}_${infer Tail}`
   : S
 
 /** Keys the runtime passes through untouched, so their contents keep their wire shape. */
-type OpaqueKey = 'external_reward' | 'externalReward' | 'query'
+type OpaqueKey = 'external_reward' | 'externalReward' | 'external_config' | 'externalConfig' | 'query'
 
 export type Camelize<T> = T extends readonly (infer Item)[]
   ? Camelize<Item>[]

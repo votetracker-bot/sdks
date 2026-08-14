@@ -1,0 +1,13 @@
+{
+  "name": "purchase_refunded",
+  "secret": "vt_test_secret_0123456789abcdef",
+  "timestamp": 1785950000,
+  "raw_body": "{\"event_type\":\"PURCHASE_REFUNDED\",\"occurred_at\":\"2026-08-10T15:00:00Z\",\"data\":{\"purchase_id\":\"pch_pub_9876543210\",\"item\":{\"public_id\":\"itm_pub_holo_role\",\"name\":\"Holo Role\"},\"buyer\":{\"user_platform_id\":\"223456683337318402\"},\"price_refunded\":500,\"reason\":\"FULFILLMENT_TIMEOUT\",\"guild_id\":\"706877503645679676\",\"refunded_at\":\"2026-08-10T15:00:00Z\"}}",
+  "signature": "f63d84c8f5a76971f08388912c85c196bff0bd0bd126a75ecdcd011aa1a902b7",
+  "headers": {
+    "x-vt-signature": "f63d84c8f5a76971f08388912c85c196bff0bd0bd126a75ecdcd011aa1a902b7",
+    "x-vt-timestamp": "1785950000",
+    "x-vt-delivery-id": "fix-purchase_refunded",
+    "x-vt-attempt": "1"
+  }
+}

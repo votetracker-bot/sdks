@@ -20,6 +20,11 @@ export type VotePage = Camelize<Schemas['IntegrationVotePageView']>
 export type VoteStatus = Camelize<Schemas['IntegrationUserVoteStatusView']>
 export type LatestVote = Camelize<Schemas['IntegrationUserLatestVoteView']>
 
+export type Purchase = Camelize<Schemas['IntegrationPurchaseView']>
+export type PurchasePage = Camelize<Schemas['IntegrationPurchasePageView']>
+export type PurchaseStatus = Purchase['status']
+export type ShopItemKind = Purchase['item']['kind']
+
 export type Ping = Camelize<Schemas['PingResponse']>
 export type ProblemResponse = Camelize<Schemas['ProblemResponse']>
 
@@ -45,6 +50,13 @@ export interface ListVotesParams {
    * webhook forwarding or backfill for history). Defaults server-side to the 7-day window.
    */
   startDate?: string
+  cursor?: string
+  limit?: number
+}
+
+export interface ListPurchasesParams {
+  status?: PurchaseStatus
+  kind?: ShopItemKind
   cursor?: string
   limit?: number
 }

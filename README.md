@@ -14,4 +14,5 @@ Official SDKs for the [VoteTracker](https://votetracker.bot) public API and webh
 
 - [API reference](https://developer.votetracker.bot/docs)
 - [Giveaways guide](https://developer.votetracker.bot/docs/giveaways)
+- [Shop economy guide](https://developer.votetracker.bot/docs/economy)
 - [Webhook forwarding guide](https://developer.votetracker.bot/docs/forwarding)

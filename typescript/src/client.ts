@@ -8,8 +8,11 @@ import type {
   GiveawayPage,
   LatestVote,
   ListGiveawaysParams,
+  ListPurchasesParams,
   ListVotesParams,
   Ping,
+  Purchase,
+  PurchasePage,
   RateLimitInfo,
   UpdateGiveawayRequest,
   Vote,
@@ -85,6 +88,7 @@ export class VoteTracker {
 
   readonly giveaways: GiveawaysApi
   readonly votes: VotesApi
+  readonly purchases: PurchasesApi
 
   private readonly maxAttempts: number
   private readonly baseDelayMs: number
@@ -116,6 +120,7 @@ export class VoteTracker {
     }
     this.giveaways = new GiveawaysApi(context)
     this.votes = new VotesApi(context)
+    this.purchases = new PurchasesApi(context)
   }
 
   /** Rate limit state from the most recent response, when the API sent RateLimit-* headers. */
@@ -369,6 +374,82 @@ class VotesApi {
         }),
       { idempotent: true },
     ) as Promise<LatestVote>
+  }
+}
+
+/** Developer-fulfilled shop purchases. Reads need `purchases:read`, deliver and refund need `purchases:write`. */
+class PurchasesApi {
+  constructor(private readonly vt: ApiContext) {}
+
+  async list(params: ListPurchasesParams = {}): Promise<PurchasePage> {
+    return this.vt.execute(
+      () =>
+        this.vt.raw.GET('/api/v1/integrations/{integration_id}/purchases', {
+          params: {
+            path: { integration_id: this.vt.integrationId },
+            query: compact({
+              status: params.status,
+              kind: params.kind,
+              cursor: params.cursor,
+              limit: params.limit,
+            }),
+          },
+        }),
+      { idempotent: true },
+    ) as Promise<PurchasePage>
+  }
+
+  /** Iterates purchases newest-first across pages, like giveaways. */
+  async *iterate(params: Omit<ListPurchasesParams, 'cursor'> = {}): AsyncGenerator<Purchase> {
+    let cursor: string | undefined
+    do {
+      const page = await this.list({ ...params, ...(cursor === undefined ? {} : { cursor }) })
+      yield* page.items
+      cursor = nextCursor(page, cursor)
+    } while (cursor !== undefined)
+  }
+
+  async get(purchaseId: string): Promise<Purchase> {
+    return this.vt.execute(
+      () =>
+        this.vt.raw.GET('/api/v1/integrations/{integration_id}/purchases/{purchase_id}', {
+          params: { path: { integration_id: this.vt.integrationId, purchase_id: purchaseId } },
+        }),
+      { idempotent: true },
+    ) as Promise<Purchase>
+  }
+
+  /**
+   * Marks the purchase delivered. Idempotent: calling it again after a successful delivery
+   * returns the same purchase unchanged. 409 `purchase_already_refunded` if it was refunded
+   * first, `purchase_not_pending` while the purchase is still processing,
+   * `purchase_not_developer_item` if the item does not require external fulfillment.
+   */
+  async deliver(purchaseId: string): Promise<Purchase> {
+    return this.vt.execute(
+      () =>
+        this.vt.raw.POST('/api/v1/integrations/{integration_id}/purchases/{purchase_id}/deliver', {
+          params: { path: { integration_id: this.vt.integrationId, purchase_id: purchaseId } },
+        }),
+      { idempotent: true },
+    ) as Promise<Purchase>
+  }
+
+  /**
+   * Refunds the purchase. Idempotent: calling it again after a successful refund returns
+   * the same purchase unchanged. 409 `purchase_already_delivered` if it was delivered
+   * first, `purchase_not_pending` while the purchase is still processing,
+   * `purchase_not_developer_item` if the item does not require external fulfillment.
+   */
+  async refund(purchaseId: string, options: { reason?: string } = {}): Promise<Purchase> {
+    return this.vt.execute(
+      () =>
+        this.vt.raw.POST('/api/v1/integrations/{integration_id}/purchases/{purchase_id}/refund', {
+          params: { path: { integration_id: this.vt.integrationId, purchase_id: purchaseId } },
+          ...(options.reason === undefined ? {} : { body: this.vt.wireBody({ reason: options.reason }) }),
+        }),
+      { idempotent: true },
+    ) as Promise<Purchase>
   }
 }
 

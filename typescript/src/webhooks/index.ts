@@ -8,6 +8,8 @@ export type {
   EventWinnersSelectedEvent,
   KnownWebhookEvent,
   ProjectType,
+  PurchaseCreatedEvent,
+  PurchaseRefundedEvent,
   UnknownEvent,
   VoteCreatedEvent,
   WebhookEvent,
